@@ -39,7 +39,8 @@ You can specify the output directory and prefix, and the number of threads.
 Assume that you have downloaded the query genes in a folder namned "pathway", and have the fasta file of the genome at genome.fa 
 Also, assume that you have downloaded the Homo sapiens model at a folder "names path_to_model/Homo_sapiens_NN_model.rds". 
 ```
-python pagesearch.py -g genome.fa -p pathway -od pagesearch_results -op test -s human -m path_to_model -t 4
+mkdir /path/to/PaGeSearch
+python Codes/pagesearch.py -g genome.fa -p pathway -od pagesearch_results -op test -s human -m path_to_model -t 4
 ```
 Your results will be saved at the pagesearch_results folder, as files named test.txt and testb.bed.
 
@@ -56,17 +57,17 @@ python download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 960
 ```
 You can run PaGeSearch using the downloaded gene sequences as:
 ```
-python pagesearch.py -g genome.fa -p metabolism_of_nucleotides_gene_sequences -od pagesearch_results -op metabolism_of_nucleotides -s human -t 4
+python Codes/pagesearch.py -g genome.fa -p metabolism_of_nucleotides_gene_sequences -od pagesearch_results -op metabolism_of_nucleotides -s human -t 4
 ```
 Download all sequences that are orthologs of the genes in the humen 'Metabolism of nucleotides' pathway within mammali species.
 The taxonomy ID is based on NCBI taxonomy (https://www.ncbi.nlm.nih.gov/taxonomy).
 ```
-python download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 40674 -o metabolism_of_nucleotides_mammals_orthologs
+python Codes/download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 40674 -o metabolism_of_nucleotides_mammals_orthologs
 ```
 #### Download gene sequences from a user defined list
 The gene list is a text file of Ensembl gene IDs separated by line breaks.
 ```
-python download_gene_sequences.py -l genelist.txt -s human -t 9606 -o gene_sequences
+python Codes/download_gene_sequences.py -l genelist.txt -s human -t 9606 -o gene_sequences
 ```
 
 ### Options
