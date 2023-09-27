@@ -136,7 +136,7 @@ def main(argv):
     args = parser.parse_args()
 
     if args.pathway != '':
-        gene_pathway_file_path = f"/disk5/3.Sohyoung_Starfish/Data/{args.species}_reactome_genes_only.txt"
+        gene_pathway_file_path = f"Reactome/{args.species}_reactome_genes_only.txt"
         download_pathway_genes(gene_pathway_file_path, args.pathway, args.species, args.taxonid, args.outdir)
     if args.genelist != '':
         download_genelist_genes(args.genelist, args.species, args.taxonid, args.outdir)
