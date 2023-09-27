@@ -8,8 +8,18 @@ PaGeSearch combines sequence similarity search, gene prediction, and neural netw
 You can download the source code of PaGeSearch and the filtering model according to your species from the github repositories.
 Do not change the name of the model file for further use.
 ### Dependencies
-* 
-### Models:
+#### Python libraries
+* python	3.7
+* pandas	1.3.5
+* Bio	1.79
+* keras	2.11.0
+#### Softwares
+* seqkit	2.4
+* mmseqs2	14.7
+* samtools	1.17
+* bedtools	2.31
+* augustus	3.5
+* exonerate	2.4
 
 ## Running PaGeSearch
 PaGeSearch is designed to be applicable for five taxonomic classes including an archetype species.
