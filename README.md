@@ -38,8 +38,11 @@ You can specify the output directory and prefix, and the number of threads.
 ### Run PaGeSearch
 Assume that you have downloaded the query genes in a folder namned "pathway", and have the fasta file of the genome at genome.fa 
 Also, assume that you have downloaded the Homo sapiens model at a folder "names path_to_model/Homo_sapiens_NN_model.rds". 
+You may change the working directory to the PaGeSearch folder.
 ```
 mkdir /path/to/PaGeSearch
+```
+```
 python Codes/pagesearch.py -g genome.fa -p pathway -od pagesearch_results -op test -s human -m path_to_model -t 4
 ```
 Your results will be saved at the pagesearch_results folder, as files named test.txt and testb.bed.
@@ -53,7 +56,7 @@ Refer to https://reactome.org/ for animal species and https://plantreactome.gram
 Download sequences of genes in the pathway 'Metabolism of nucleotides' of Homo sapiens and save to a folder named metabolism_of_nucleotides_gene_sequences.
 The sequences of each gene is saved to separate fasta files.
 ```
-python download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 9606 -o metabolism_of_nucleotides_gene_sequences
+python Codes/download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 9606 -o metabolism_of_nucleotides_gene_sequences
 ```
 You can run PaGeSearch using the downloaded gene sequences as:
 ```
