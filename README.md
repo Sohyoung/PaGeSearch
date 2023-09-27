@@ -7,7 +7,8 @@ PaGeSearch combines sequence similarity search, gene prediction, and neural netw
 ## Installation
 You can download the source code of PaGeSearch and the filtering model according to your species from the github repositories.
 Do not change the name of the model file for further use.
-### Codes:
+### Dependencies
+* 
 ### Models:
 
 ## Running PaGeSearch
@@ -38,19 +39,19 @@ The pathway information is based on the Reactome database, and the pathway name 
 Refer to https://reactome.org/ for animal species and https://plantreactome.gramene.org/index.php?lang=en for plant species.
 
 #### Download gene sequences from pathway name
-Download sequences of glycolysis related genes of Homo sapiens and save to a folder named Glycolysis_gene_sequences.
+Download sequences of genes in the pathway 'Metabolism of nucleotides' of Homo sapiens and save to a folder named metabolism_of_nucleotides_gene_sequences.
 The sequences of each gene is saved to separate fasta files.
 ```
-python download_gene_sequences.py -p Glycolysis -s human -t 9606 -o Glycolysis_gene_sequences
+python download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 9606 -o metabolism_of_nucleotides_gene_sequences
 ```
 You can run PaGeSearch using the downloaded gene sequences as:
 ```
-python pagesearch.py -g genome.fa -p Glycolysis_gene_sequences -od pagesearch_results -op glycolysis -s human -m path_to_model -t 4
+python pagesearch.py -g genome.fa -p metabolism_of_nucleotides_gene_sequences -od pagesearch_results -op metabolism_of_nucleotides -s human -t 4
 ```
-Download all sequences that are orthologs of human glycolysis genes in mammalia.
+Download all sequences that are orthologs of the genes in the humen 'Metabolism of nucleotides' pathway within mammali species.
 The taxonomy ID is based on NCBI taxonomy (https://www.ncbi.nlm.nih.gov/taxonomy).
 ```
-python download_gene_sequences.py -p Glycolysis -s human -t 40674 -o Glycolysis_mammals_orthologs
+python download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 40674 -o metabolism_of_nucleotides_mammals_orthologs
 ```
 #### Download gene sequences from a user defined list
 The gene list is a text file of Ensembl gene IDs separated by line breaks.
@@ -70,14 +71,14 @@ python download_gene_sequences.py -l genelist.txt -s human -t 9606 -o gene_seque
 | -t, --threads              | Number of threads used                            | 4          |
 
 #### download_gene_sequences.py
-|     Option     |               Description                |       Default        |
-|----------------|------------------------------------------|----------------------|
-| -p, --pathway  | Reactome pathway name                    | None                 |
-| -l, --genelist | Path to user-defined gene list txt file  | None                 |
-| -s, --species  | Archetype species                        | human                |
-| -t, --taxon    | NCBI taxon ID to download orthologs from | 9606                 |
-| -o, --outdir   | Folder path where outputs will be saved  | './pagesearch_query' |
+|     Option     |               Description                |      Default       |
+|----------------|------------------------------------------|--------------------|
+| -p, --pathway  | Reactome pathway name                    | None               |
+| -l, --genelist | Path to user-defined gene list txt file  | None               |
+| -s, --species  | Archetype species                        | human              |
+| -t, --taxon    | NCBI taxon ID to download orthologs from | 9606               |
+| -o, --outdir   | Folder path where outputs will be saved  | ./pagesearch_query |
 
 
-#### Contact
+## Contact
 wsy415@snu.ac.kr
