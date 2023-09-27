@@ -1,0 +1,5 @@
+Arabidopsis_thaliana 0.18
+Triticum_aestivum 0.15
+Homo_sapiens 0.15
+Danio_rerio 0.16
+Gallus_gallus 0.15
