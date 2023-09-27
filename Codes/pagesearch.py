@@ -405,7 +405,7 @@ def filterResults(results_path, model_path):
     model = keras.models.load_model(model_path)
     species = os.path.basename(model_path).replace('_NN_model.h5', '')
 
-    threshold_df = pd.read_csv('/disk5/3.Sohyoung_Starfish/Threshold90.txt', header=None, sep=' ')
+    threshold_df = pd.read_csv('Models/Threshold95.txt', header=None, sep=' ')
     threshold = threshold_df[threshold_df[0] == species].iloc[0, 1]
 
     # Calculate probability from results
@@ -418,24 +418,12 @@ def filterResults(results_path, model_path):
     df_uniq = df_tmp.groupby(['Chromosome', 'Gene_Start', 'Gene_End'])
     df_uniq = df_uniq.apply(lambda x: x.sort_values('Pred_prob', ascending=False))
     df_uniq = df_uniq.reset_index(drop=True)
-    df_uniq = df_uniq[df_uniq.groupby(['Chromosome', 'Gene_Start', 'Gene_End'])['Pred_prob'].transform('first') - df_uniq['Pred_prob'] <= 0.05]
+    df_uniq = df_uniq[df_uniq.groupby(['Chromosome', 'Gene_Start', 'Gene_End'])['Pred_prob'].transform('first') - df_uniq['Pred_prob'] <= 0.1]
 
     # Second group and filter operation
     df_uniq = df_uniq.groupby(['Gene']).apply(lambda x: x.sort_values('Pred_prob', ascending=False)).reset_index(drop=True)
     df_uniq = df_uniq[df_uniq.groupby(['Gene'])['Pred_prob'].transform('first') - df_uniq['Pred_prob'] <= 0.05]
     df_uniq = df_uniq[df_uniq['Pred_prob'] >= threshold]
-
-    # df.sorted
-    df_sorted = df_tmp[df_tmp['Pred_prob'] >= threshold]
-    df_sorted = df_sorted.sort_values(['Gene', 'Chromosome', 'Gene_Start', 'Pred_prob'], ascending=[True, True, True, False])
-
-    # Apply your custom function here for df
-    # Assuming keep_highest_score_non_overlapping is a defined Python function
-    df = df_sorted.groupby('Gene').apply(keep_highest_score_non_overlapping).reset_index(drop=True)
-
-    # df.all
-    df_all = df.groupby(['Chromosome', 'Gene_Start', 'Gene_End']).apply(lambda x: x.sort_values('Pred_prob', ascending=False)).reset_index(drop=True)
-    df_all = df_all[df_all.groupby(['Chromosome', 'Gene_Start', 'Gene_End'])['Pred_prob'].transform('first') - df_all['Pred_prob'] <= 0.02]
 
     # Save the DataFrames to text files
     df_uniq = df_uniq.rename(columns={'Percent_Identity_exonerate': 'Percent_Identity_Protein_Alignment', 'Percent_Similarity_exonerate': 'Percent_Similarity_Protein_Alignment', 'Gene_Cover_exonerate': 'Gene_Coverage_Protein_Alignment', 'Sequence_Cover_exonerate': 'Sequence_Coverage_Protein_Alignment', 'Normalized_Score_exonerate': 'Normalized_Score_Protein_Alignement', 'Gene_Cover_mmseqs': 'Gene_Coverage_Similarity_Search', 'Percent_Identity_mmseqs': 'Percent_Identity_Similarity_Search', 'Pred_prob': 'Prediction_Probability'})
@@ -562,7 +550,7 @@ def runPipeline(genome_tmp, pathway_gene_dir_tmp, outdir_tmp, outprefix, nextens
     print('Results filtering')
     parseResults(gene_prediction_dir, exonerate_dir, mmseqs_results, gene_id_fname, summary_fname, nthreads)
     species_dic = {'human': 'Homo_sapiens', 'zebrafish': 'Danio_rerio', 'chicken': 'Gallus_gallus', 'arabidopsis': 'Arabidopsis_thaliana', 'wheat': 'Triticum_aestivum', 'fly': 'Drosophila_melanogaster'}
-    model_path = f"/disk1/1.Sohyoung_Pipeline/Models/{species_dic[species_model]}_NN_model.h5"
+    model_path = f"Models/{species_dic[species_model]}_NN_model.h5"
     filterResults(summary_fname, model_path)
     os.system('rm -r ' + outdir + '/GenePrediction')
     os.system('rm -r ' + outdir + '/Exonerate')
