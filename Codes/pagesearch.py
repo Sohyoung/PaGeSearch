@@ -208,6 +208,7 @@ def exonerate_task(params):
     line = 'seqkit rmdup -s ' + gene_fasta.replace('.fa', '.tmp.fa') + ' 2> tmp.log | cat > ' + gene_fasta.replace('.fa', '.uniq.fa')
     os.system(line)
     os.remove(gene_fasta.replace('.fa', '.tmp.fa'))
+    os.remove('tmp.log')
     protein_alignment_output = os.path.join(exonerate_dir, genename + '.txt')
     exonerate(gene_fasta, fasta_genepredicted, protein_alignment_output)
     os.remove(gene_fasta.replace('.fa', '.uniq.fa'))
@@ -405,7 +406,7 @@ def filterResults(results_path, model_path):
     model = keras.models.load_model(model_path)
     species = os.path.basename(model_path).replace('_NN_model.h5', '')
 
-    threshold_df = pd.read_csv('Models/Threshold95.txt', header=None, sep=' ')
+    threshold_df = pd.read_csv(model_path.replace(os.path.basename(model_path), 'Threshold95.txt'), header=None, sep=' ')
     threshold = threshold_df[threshold_df[0] == species].iloc[0, 1]
 
     # Calculate probability from results
@@ -429,10 +430,13 @@ def filterResults(results_path, model_path):
     df_uniq = df_uniq.rename(columns={'Percent_Identity_exonerate': 'Percent_Identity_Protein_Alignment', 'Percent_Similarity_exonerate': 'Percent_Similarity_Protein_Alignment', 'Gene_Cover_exonerate': 'Gene_Coverage_Protein_Alignment', 'Sequence_Cover_exonerate': 'Sequence_Coverage_Protein_Alignment', 'Normalized_Score_exonerate': 'Normalized_Score_Protein_Alignement', 'Gene_Cover_mmseqs': 'Gene_Coverage_Similarity_Search', 'Percent_Identity_mmseqs': 'Percent_Identity_Similarity_Search', 'Pred_prob': 'Prediction_Probability'})
     df_uniq.to_csv(results_path, sep='\t', index=False)
     df_uniq[['Chromosome', 'Gene_Start', 'Gene_End', 'Gene']].to_csv(results_path.replace('.txt', '.bed'), sep='\t', index=False, header=False)
+    os.system('rm ' + results_path.replace('.txt', '.tmp.txt'))
     os.system('rm ' + results_path.replace('.txt', '_tmp.txt'))
 
 
 def runPipeline(genome_tmp, pathway_gene_dir_tmp, outdir_tmp, outprefix, nextension, species_model, nthreads):
+    cwd_full_path = os.getcwd()
+    #print(cwd_full_path)
     stime_tot = time.time()
     stime = time.time()
     outdir = os.path.abspath(outdir_tmp)
@@ -550,12 +554,13 @@ def runPipeline(genome_tmp, pathway_gene_dir_tmp, outdir_tmp, outprefix, nextens
     print('Results filtering')
     parseResults(gene_prediction_dir, exonerate_dir, mmseqs_results, gene_id_fname, summary_fname, nthreads)
     species_dic = {'human': 'Homo_sapiens', 'zebrafish': 'Danio_rerio', 'chicken': 'Gallus_gallus', 'arabidopsis': 'Arabidopsis_thaliana', 'wheat': 'Triticum_aestivum', 'fly': 'Drosophila_melanogaster'}
-    model_path = f"Models/{species_dic[species_model]}_NN_model.h5"
+    model_path = f"{cwd_full_path}/Models/{species_dic[species_model]}_NN_model.h5"
     filterResults(summary_fname, model_path)
     os.system('rm -r ' + outdir + '/GenePrediction')
     os.system('rm -r ' + outdir + '/Exonerate')
     os.system('rm -r ' + outdir + '/MMseqs')
-    os.system('rm -r ' + seq_extract_dir)
+    os.system('rm -r ' + outdir + '/ExtractSequences')
+    os.system('rm -r ' + outdir + '/tmp')
     print('Time consumed:  ' + str(time.time() - stime_tot) + '\n')
 
 
