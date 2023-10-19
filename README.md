@@ -43,7 +43,7 @@ You may change the working directory to the PaGeSearch folder.
 cd /path/to/PaGeSearch
 ```
 ```
-python Codes/pagesearch.py -g genome.fa -p pathway -od pagesearch_results -op test -s human -t 4
+python Codes/pagesearch.py -g /path/to/genome.fa -p /path/to/pathway/gene/sequences -od ../pagesearch_results -op test -s human -t 4
 ```
 Your results will be saved at the pagesearch_results folder, as files named test.txt and testb.bed.
 
@@ -56,11 +56,11 @@ Refer to https://reactome.org/ for animal species and https://plantreactome.gram
 Download sequences of genes in the pathway 'Metabolism of nucleotides' of Homo sapiens and save to a folder named metabolism_of_nucleotides_gene_sequences.
 The sequences of each gene is saved to separate fasta files.
 ```
-python Codes/download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 9606 -o metabolism_of_nucleotides_gene_sequences
+python Codes/download_gene_sequences.py -p "Metabolism of nucleotides" -s human -t 9606 -o ../metabolism_of_nucleotides_gene_sequences
 ```
 You can run PaGeSearch using the downloaded gene sequences as:
 ```
-python Codes/pagesearch.py -g genome.fa -p metabolism_of_nucleotides_gene_sequences -od pagesearch_results -op metabolism_of_nucleotides -s human -t 4
+python Codes/pagesearch.py -g ../path/to/genome.fa -p ../metabolism_of_nucleotides_gene_sequences -od ../pagesearch_results -op metabolism_of_nucleotides -s human -t 4
 ```
 Download all sequences that are orthologs of the genes in the humen 'Metabolism of nucleotides' pathway within mammali species.
 The taxonomy ID is based on NCBI taxonomy (https://www.ncbi.nlm.nih.gov/taxonomy).
