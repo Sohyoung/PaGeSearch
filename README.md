@@ -43,7 +43,7 @@ You may change the working directory to the PaGeSearch folder.
 mkdir /path/to/PaGeSearch
 ```
 ```
-python Codes/pagesearch.py -g genome.fa -p pathway -od pagesearch_results -op test -s human -m path_to_model -t 4
+python Codes/pagesearch.py -g genome.fa -p pathway -od pagesearch_results -op test -s human -t 4
 ```
 Your results will be saved at the pagesearch_results folder, as files named test.txt and testb.bed.
 
