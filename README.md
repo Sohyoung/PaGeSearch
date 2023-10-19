@@ -40,7 +40,7 @@ Assume that you have downloaded the query genes in a folder namned "pathway", an
 Also, assume that you have downloaded the Homo sapiens model at a folder "names path_to_model/Homo_sapiens_NN_model.rds". 
 You may change the working directory to the PaGeSearch folder.
 ```
-mkdir /path/to/PaGeSearch
+cd /path/to/PaGeSearch
 ```
 ```
 python Codes/pagesearch.py -g genome.fa -p pathway -od pagesearch_results -op test -s human -t 4
