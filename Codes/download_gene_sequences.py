@@ -118,7 +118,7 @@ def download_genelist_genes(genelist_fname, species, taxon_id, outdir):
         next(file)
         # Iterate through each line in the file
         for line in file:
-            gene_list.append(line.split('\t')[0])
+            gene_list.append(line.split('\t')[0].strip())
     for gene_id in gene_list:
         print("Download orthologs of " + gene_id)
         download_gene_sequences(gene_id, taxon_id, outdir)
@@ -134,6 +134,9 @@ def main(argv):
     parser.add_argument('-o', '--outdir', dest='outdir', type=str, action="store", default='./pagesearch_query')
 
     args = parser.parse_args()
+
+    if os.path.exists(args.outdir) == False:
+        os.mkdir(args.outdir)
 
     if args.pathway != '':
         gene_pathway_file_path = f"Reactome/{args.species}.txt"
