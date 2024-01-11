@@ -13,6 +13,7 @@ Do not change the name of the model file for further use.
 * pandas	1.3.5
 * Bio	1.79
 * keras	2.11.0
+* tensorflow 2.11.0
 #### Softwares
 * seqkit	2.4
 * mmseqs2	14.7
