@@ -2,5 +2,5 @@ Example data that can be used for PaGeSearch test run.
 Searches arabidopsis glygolysis genes in grape chromosome 1. 
 
 # Usage
-python Codes/pagesearch.py -p test_data/glycolysis -g test_data/grape_chr1.fa -od test -op example -s human -t 1
+python Codes/pagesearch.py -p test_data/glycolysis -g test_data/grape_chr1.fa -od test -op example -s arabidopsis -t 1
 
