@@ -1,5 +1,6 @@
 Example data that can be used for PaGeSearch test run.
+Searches human glygolysis genes in mouse chromosome 1. 
 
 # Usage
-python Codes/pagesearch.py -p test_data/glycolysis -g test_data/arabidopsis_chr1.fa -od test -op example -s arabidopsis -t 1
+python Codes/pagesearch.py -p test_data/glycolysis -g test_data/mouse_chr1.fa -od test -op example -s human -t 1
 
