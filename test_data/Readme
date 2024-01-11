@@ -1,1 +1,6 @@
-E
+Example data that can be used for PaGeSearch test run.
+
+### Usage
+'''
+python Codes/pagesearch.py -p test_data/glycolysis -g test_data/arabidopsis_chr1.fa -od test -op example -s arabidopsis -t 1
+'''
