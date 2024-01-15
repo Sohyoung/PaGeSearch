@@ -76,7 +76,7 @@ Each row contains information of the chromosome number, start codon, stop codon,
 1	20740849	20743255	GAPC2
 ```
 ##### test.gff
-This file provides detailed annotations in GFF format. For detailed information, please refer to the following link: General Feature Format. 
+This file provides detailed annotations in GFF format. For detailed information, please refer to the following link: https://en.wikipedia.org/wiki/General_feature_format. 
 The first column indicates the chromosome number, the third column the feature type, the third and fourth columns represent the start and stop codons, and the last column contains information related to gene annotation. 
 In the last column, the content following 'gene=' indicates the name of the gene being searched for. 
 Although PaGeSearch aims to present the most probable gene model for each gene, in cases where prediction probabilities are similar (within 5% difference), it considers it a tie and may report multiple models. In such cases, the gene_id is indicated with _1, _2, etc. 
