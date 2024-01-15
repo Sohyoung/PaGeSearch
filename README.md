@@ -42,16 +42,15 @@ First, you need two types of input files:
 Genome Sequence File: This is a fasta file (.fa) containing the genome sequence you are interested in. For example, genome.fa.
 Query Gene Sequences: These are the nucleotide sequences of the genes you want to find. Each gene's sequence should be in a separate fasta file.
 Ensure all the fasta files for your query genes are placed in a directory, such as /directory/of/query/gene/sequences/folder.
-Setting Up PaGeSearch:
 
+#### Setting up PaGeSearch
 Make sure you have PaGeSearch installed and know the path to its folder, for instance, /path/to/PaGeSearch.
-
-#### Running PaGeSearch
 Change your working directory to the PaGeSearch folder using the command line:
 '''
 cd /path/to/PaGeSearch
 '''
 
+#### Running PaGeSearch
 Now run PaGeSearch with the following command:
 '''
 python Codes/pagesearch.py -g /path/to/genome.fa -p /directory/of/query/gene/sequences/folder -od ../pagesearch_results -op test -s human -t 4
