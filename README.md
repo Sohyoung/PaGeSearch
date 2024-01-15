@@ -46,15 +46,15 @@ Ensure all the fasta files for your query genes are placed in a directory, such 
 #### Setting up PaGeSearch
 Make sure you have PaGeSearch installed and know the path to its folder, for instance, /path/to/PaGeSearch.
 Change your working directory to the PaGeSearch folder using the command line:
-'''
+```
 cd /path/to/PaGeSearch
-'''
+```
 
 #### Running PaGeSearch
 Now run PaGeSearch with the following command:
-'''
+```
 python Codes/pagesearch.py -g /path/to/genome.fa -p /directory/of/query/gene/sequences/folder -od ../pagesearch_results -op test -s human -t 4
-'''
+```
 In this command:
 -g specifies the path to your genome sequence file.
 -p specifies the path to the folder containing your query gene sequences. Each gene should be in a separate fasta file within this folder.
@@ -68,20 +68,20 @@ After running PaGeSearch, the results will be saved in the specified output dire
 ##### test.bed: 
 This file contains information on the locations of the found genes in BED format.
 Each row contains information of the chromosome number, start codon, stop codon, and gene name. An example is as follows.
-'''
+```
 1	3934136	3943753	FBA6
 1	3934136	3938303	FBA8
 1	3934136	3938303	FBA8
 1	20740849	20743255	GAPC1
 1	20740849	20743255	GAPC2
-'''
+```
 ##### test.gff
 This file provides detailed annotations in GFF format. For detailed information, please refer to the following link: General Feature Format. 
 The first column indicates the chromosome number, the third column the feature type, the third and fourth columns represent the start and stop codons, and the last column contains information related to gene annotation. 
 In the last column, the content following 'gene=' indicates the name of the gene being searched for. 
 Although PaGeSearch aims to present the most probable gene model for each gene, in cases where prediction probabilities are similar (within 5% difference), it considers it a tie and may report multiple models. In such cases, the gene_id is indicated with _1, _2, etc. 
 The probability represents the prediction probability calculated by PaGeSearchâ€™s algorithm. An example is as follows.
-'''
+```
 1	PaGeSearch	gene	3934136	3938303	.	+	.	gene_id=FBA8_1;gene=FBA8;probability=0.4765756
 1	PaGeSearch	transcript	3934136	3938303	.	+	.	gene_id=FBA8_1
 1	PaGeSearch	start_codon	3934136	3934138	.	+	.	gene_id=FBA8_1
@@ -97,7 +97,7 @@ The probability represents the prediction probability calculated by PaGeSearchâ€
 1	PaGeSearch	CDS	3937222	3937491	.	+	.	gene_id=FBA8_1
 1	PaGeSearch	CDS	3938025	3938303	.	+	.	gene_id=FBA8_1
 1	PaGeSearch	stop_codon	3938301	3938303	.	+	.	gene_id=FBA8_1
-'''
+```
 
 
 ### Download gene sequences 
