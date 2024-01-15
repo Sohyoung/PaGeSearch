@@ -65,7 +65,7 @@ In this command:
 
 #### Understanding the Output
 After running PaGeSearch, the results will be saved in the specified output directory. You'll find two files:
-##### test.bed: 
+##### test.bed
 This file contains information on the locations of the found genes in BED format.
 Each row contains information of the chromosome number, start codon, stop codon, and gene name. An example is as follows.
 ```
