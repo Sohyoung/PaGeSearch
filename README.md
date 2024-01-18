@@ -134,7 +134,7 @@ python Codes/download_gene_sequences.py -l genelist.txt -s human -t 9606 -o gene
 ```
 
 ### Example run
-Test data and code is available at the Github 'example' folder. 
+Test data and code is available at the Github 'test_data' folder. 
 
 
 ### Options
