@@ -136,6 +136,9 @@ python Codes/download_gene_sequences.py -l genelist.txt -s human -t 9606 -o gene
 ### Example run
 Test data and code is available at the Github 'test_data' folder. 
 
+### Runtime and memory usage
+PaGeSearch can find 67 genes in the Oryza sativa genome (358 Mb) in 10 minutes on 4 CPUs. 
+For large data, Avena sativa (10.1 Gb), the runtime was 7941 seconds and the maximum memory usage was 89.6 Mb, in order to find 135 genes.
 
 ### Options
 #### pagesearch.py
