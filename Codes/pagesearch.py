@@ -1,4 +1,5 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import subprocess
 import pandas as pd
 import time
@@ -105,7 +106,7 @@ def seq_extract(genome, mmseqs_results, seq_extract_dir, nextension, chr_len_fna
     nthreads = int(nthreads)
     # Read tblastn data
     columns = ['geneid', 'chr', 'qstart', 'qend', 'start', 'end', 'alnlen', 'score', 'nident', 'qlen']
-    data = pd.read_csv(mmseqs_results, sep='\t', header=None, names=columns)
+    data = pd.read_csv(mmseqs_results, sep='\t', header=None, names=columns, dtype={'chr':'str'})
     geneid_dic = pd.read_csv(gene_id_fname, sep='\t', header=None, names=['gene', 'geneid'])
     with open(chr_len_fname, 'r') as file:
         chrlen_dic = {line.split()[0]: int(line.split()[1].strip()) for line in file}
@@ -205,13 +206,13 @@ def exonerate_task(params):
     gene_fasta = os.path.join(pathway_gene_dir, genename + '.fa')
     line = "perl -pe '$. > 1 and /^>/ ? print " + '"\n"' + " : chomp' " + gene_fasta + ' | paste - - | grep -P -v ".+\t.*[BJOUZ]+.*" | tr "\t" "\n" > ' + gene_fasta.replace('.fa', '.tmp.fa')
     os.system(line)
-    line = 'seqkit rmdup -s ' + gene_fasta.replace('.fa', '.tmp.fa') + ' 2> tmp.log | cat > ' + gene_fasta.replace('.fa', '.uniq.fa')
-    os.system(line)
-    os.remove(gene_fasta.replace('.fa', '.tmp.fa'))
-    os.remove('tmp.log')
+    #line = 'seqkit rmdup -s ' + gene_fasta.replace('.fa', '.tmp.fa') + ' 2> tmp.log | cat > ' + gene_fasta.replace('.fa', '.uniq.fa')
+    #os.system(line)
+    #os.remove('tmp.log')
     protein_alignment_output = os.path.join(exonerate_dir, genename + '.txt')
-    exonerate(gene_fasta, fasta_genepredicted, protein_alignment_output)
-    os.remove(gene_fasta.replace('.fa', '.uniq.fa'))
+    exonerate(gene_fasta.replace('.fa', '.tmp.fa'), fasta_genepredicted, protein_alignment_output)
+    os.remove(gene_fasta.replace('.fa', '.tmp.fa'))
+    #os.system('rm ' + gene_fasta.replace('.fa', '.uniq.fa'))
 # Use multiprocessing for aligning protein sequences with exonerate
 def run_exonerate_multithreading(fasta_genepredicted_dir, pathway_gene_dir, exonerate_dir, nthreads):
     nthreads = int(nthreads)
@@ -419,12 +420,15 @@ def filterResults(results_path, model_path):
     df_uniq = df_tmp.groupby(['Chromosome', 'Gene_Start', 'Gene_End'])
     df_uniq = df_uniq.apply(lambda x: x.sort_values('Pred_prob', ascending=False))
     df_uniq = df_uniq.reset_index(drop=True)
-    df_uniq = df_uniq[df_uniq.groupby(['Chromosome', 'Gene_Start', 'Gene_End'])['Pred_prob'].transform('first') - df_uniq['Pred_prob'] <= 0.1]
+    #df_uniq = df_uniq[df_uniq.groupby(['Chromosome', 'Gene_Start', 'Gene_End'])['Pred_prob'].transform('first') - df_uniq['Pred_prob'] <= 0.05]
+    df_uniq = df_uniq[df_uniq['Pred_prob'] >= df_uniq.groupby(['Chromosome', 'Gene_Start', 'Gene_End'])['Pred_prob'].transform('max') * 0.99]
 
     # Second group and filter operation
     df_uniq = df_uniq.groupby(['Gene']).apply(lambda x: x.sort_values('Pred_prob', ascending=False)).reset_index(drop=True)
-    df_uniq = df_uniq[df_uniq.groupby(['Gene'])['Pred_prob'].transform('first') - df_uniq['Pred_prob'] <= 0.05]
+    #df_uniq = df_uniq[df_uniq.groupby(['Gene'])['Pred_prob'].transform('first') - df_uniq['Pred_prob'] <= 0.05]
+    df_uniq = df_uniq[df_uniq['Pred_prob'] >= df_uniq.groupby('Gene')['Pred_prob'].transform('max') * 0.95]
     df_uniq = df_uniq[df_uniq['Pred_prob'] >= threshold]
+    df_uniq = df_uniq.sort_values(by=['Gene', 'Pred_prob'], ascending=[True, False])
 
     # Save the DataFrames to text files
     df_uniq = df_uniq.rename(columns={'Percent_Identity_exonerate': 'Percent_Identity_Protein_Alignment', 'Percent_Similarity_exonerate': 'Percent_Similarity_Protein_Alignment', 'Gene_Cover_exonerate': 'Gene_Coverage_Protein_Alignment', 'Sequence_Cover_exonerate': 'Sequence_Coverage_Protein_Alignment', 'Normalized_Score_exonerate': 'Normalized_Score_Protein_Alignement', 'Gene_Cover_mmseqs': 'Gene_Coverage_Similarity_Search', 'Percent_Identity_mmseqs': 'Percent_Identity_Similarity_Search', 'Pred_prob': 'Prediction_Probability'})
@@ -433,8 +437,45 @@ def filterResults(results_path, model_path):
     os.system('rm ' + results_path.replace('.txt', '.tmp.txt'))
     os.system('rm ' + results_path.replace('.txt', '_tmp.txt'))
 
+def make_gff_output(results_file, gene_prediction_dir, out_gff):
+    result = pd.read_csv(results_file, sep='\t', header=0)
+    for i in range(result.shape[0]):
+        gene = result.loc[i, 'Gene']
+        transcript = result.loc[i, 'Transcript_ID'].replace('.t1', '')
+        pred = result.loc[i, 'Prediction_Probability']
+        count = result['Gene'].value_counts().get(gene, 0)
+        if count == 1:
+            j = ''
+        else:
+            j = 0
+        with open(f"{gene_prediction_dir}/{gene}.gff") as gff_file:
+            chr_start_end = 'stringnotfound'
+            for line in gff_file:
+                if line.startswith(f'# start gene {transcript}'):
+                    if j != '':
+                        j += 1
+                    fields = next(gff_file).split('\t')
+                    chromosome = fields[0].split(':')[0]
+                    chr_start_end = fields[0]
+                    gene_start = int(fields[0].split(':')[1].split('-')[0]) + int(fields[3])
+                    gene_end = int(fields[0].split(':')[1].split('-')[0]) + int(fields[4])
+                    with open(out_gff, 'a') as outfile:
+                        if j == '':
+                            outfile.write(f"{chromosome}\tPaGeSearch\tgene\t{gene_start}\t{gene_end}\t.\t{fields[6]}\t.\tgene_id={gene};gene={gene};probability={pred}\n")
+                        else:
+                            outfile.write(f"{chromosome}\tPaGeSearch\tgene\t{gene_start}\t{gene_end}\t.\t{fields[6]}\t.\tgene_id={gene}_{j};gene={gene};probability={pred}\n")
+                if line.startswith(chr_start_end) and transcript in line:
+                    fields = line.split('\t')
+                    start = int(fields[0].split(':')[1].split('-')[0]) + int(fields[3])
+                    end = int(fields[0].split(':')[1].split('-')[0]) + int(fields[4])
+                    with open(out_gff, 'a') as outfile:
+                        if j == '':
+                            outfile.write(f"{chromosome}\tPaGeSearch\t{fields[2]}\t{start}\t{end}\t.\t{fields[6]}\t.\tgene_id={gene}\n")
+                        else:
+                            outfile.write(f"{chromosome}\tPaGeSearch\t{fields[2]}\t{start}\t{end}\t.\t{fields[6]}\t.\tgene_id={gene}_{j}\n")
 
-def runPipeline(genome_tmp, pathway_gene_dir_tmp, outdir_tmp, outprefix, nextension, species_model, nthreads):
+
+def runPipeline(genome_tmp, pathway_gene_dir_tmp, outdir_tmp, outprefix, species_model, nthreads):
     cwd_full_path = os.getcwd()
     #print(cwd_full_path)
     stime_tot = time.time()
@@ -448,6 +489,8 @@ def runPipeline(genome_tmp, pathway_gene_dir_tmp, outdir_tmp, outprefix, nextens
     print('Archetype species: ' + species_model)
     print(f'Results will be saves at: {outdir}/{outprefix}.txt')
     print(f'Using {nthreads} threads')
+
+    nextension = 20000
 
     if os.path.exists(outdir) == False:
         os.makedirs(outdir)
@@ -536,7 +579,6 @@ def runPipeline(genome_tmp, pathway_gene_dir_tmp, outdir_tmp, outprefix, nextens
     gene_prediction(gene_fasta_dir, fasta_extended_dir, exonerate_hints_dir, gene_prediction_dir, species_model, nthreads)
     os.system('rm -r ' + seq_extract_dir + '/*/')
     os.system('rm -r ' + exonerate_hints_dir)
-    stime = time.time()
 
     gene_prediction_dir = outdir + '/GenePrediction/' + outprefix + '/prediction'
     if os.path.exists(outdir + '/Exonerate/') == False:
@@ -556,28 +598,75 @@ def runPipeline(genome_tmp, pathway_gene_dir_tmp, outdir_tmp, outprefix, nextens
     species_dic = {'human': 'Homo_sapiens', 'zebrafish': 'Danio_rerio', 'chicken': 'Gallus_gallus', 'arabidopsis': 'Arabidopsis_thaliana', 'wheat': 'Triticum_aestivum', 'fly': 'Drosophila_melanogaster'}
     model_path = f"{cwd_full_path}/Models/{species_dic[species_model]}_NN_model.h5"
     filterResults(summary_fname, model_path)
+    make_gff_output(summary_fname, gene_prediction_dir, summary_fname.replace('.txt', '.gff'))
     os.system('rm -r ' + outdir + '/GenePrediction')
     os.system('rm -r ' + outdir + '/Exonerate')
     os.system('rm -r ' + outdir + '/MMseqs')
     os.system('rm -r ' + outdir + '/ExtractSequences')
     os.system('rm -r ' + outdir + '/tmp')
+
+    genes_found = pd.read_csv(summary_fname.replace('.txt', '.bed'), header=None, sep='\t')[3]
+    genes_found = set(genes_found)
+    query_genes = glob.glob(f"{pathway_gene_dir}/*.fa")
+    query_genes = [i.split('/')[-1].replace('.fa', '') for i in query_genes]
+    query_genes = set(query_genes)
+    not_found = query_genes - genes_found
+    with open(summary_fname.replace('.txt', '_notfound.txt'), 'w') as outfile:
+        for gene in not_found:
+            outfile.write(gene + '\n')
     print('Time consumed:  ' + str(time.time() - stime_tot) + '\n')
 
 
+def file_exists(filepath):
+    full_path = os.path.abspath(filepath)
+    if not os.path.isfile(full_path):
+        raise argparse.ArgumentTypeError(f"The file {full_path} does not exist!")
+    return full_path
+
+def directory_exists_and_not_empty(directory):
+    full_directory = os.path.abspath(directory)
+    if not os.path.isdir(directory):
+        raise argparse.ArgumentTypeError(f"The directory {directory} does not exist!")
+
+    if not os.listdir(directory):  # List is empty, directory is empty
+        raise argparse.ArgumentTypeError(f"The directory {directory} is empty!")
+
+    return full_directory
+
+def validate_species(species):
+    valid_species = ["arabidopsis", "wheat", "human", "chicken", "zebrafish"]
+    if species.lower() not in valid_species:
+        raise argparse.ArgumentTypeError(f"Invalid species: {species}. Must be one of {', '.join(valid_species)}.")
+    return species
+
 def main(argv):
-    stime = time.time()
-    parser = argparse.ArgumentParser(prog='PROG', usage='%(prog)s [options]')
-    parser.add_argument('-g', '--genome', dest='genome', type=str, action="store")
-    parser.add_argument('-p', '--pathway-geneseq-dir', dest='pathway_gene_dir', type=str, action="store")
-    parser.add_argument('-od', '--outdir', dest='outdir', type=str, action="store", default='./')
-    parser.add_argument('-op', '--outprefix', dest='outprefix', type=str, action="store", default='pagesearch')
-    parser.add_argument('-s', '--species', dest='modelspecies', type=str, action="store", default='human')
-    parser.add_argument('-t', '--threads', dest='nthreads', type=str, action="store", default='4')
+    parser = argparse.ArgumentParser(
+        prog='python Codes/pagesearch.py',
+        usage='%(prog)s -g /path/to/genome.fa -p /directory/of/query/gene/sequences/folder/ -od ./-op pagesearch -s human -t 4',
+        description='This script searches for pathway genes in a given genome.'
+    )
+    parser.add_argument('-g', '--genome', dest='genome', type=file_exists, required=True, help='Path to your genome sequence file. Required.')
+    parser.add_argument('-p', '--pathway-geneseq-dir', dest='pathway_gene_dir', type=directory_exists_and_not_empty, required=True, help='Path to the folder containing your query gene sequences. Required.')
+    parser.add_argument('-od', '--outdir', dest='outdir', type=str, action="store", default='./', help='Where the results will be saved (default "./").')
+    parser.add_argument('-op', '--outprefix', dest='outprefix', type=str, action="store", default='pagesearch', help='Prefix for the output files (default "pagesearch").')
+    parser.add_argument('-s', '--species', dest='modelspecies', type=validate_species, action="store", default='human', help='Archetype species (default "human").')
+    parser.add_argument('-t', '--threads', dest='nthreads', type=int, action="store", default=4, help='Number of threads to use (default 4).')
+
+    if len(argv) <= 1:
+        parser.print_help()
+        return
 
     args = parser.parse_args()
 
-    runPipeline(args.genome, args.pathway_gene_dir, args.outdir, args.outprefix, 20000, args.modelspecies, args.nthreads)
+    try:
+        stime = time.time()
+        runPipeline(args.genome, args.pathway_gene_dir, args.outdir, args.outprefix, args.modelspecies, args.nthreads)
+        print('\nPathway gene search in genome finished.')
+        etime = time.time()
+        print(f'Elapsed time: {etime - stime} seconds')
+    except argparse.ArgumentTypeError as e:
+        print(e)
+        return
 
-    print('\nPathway gene search in genome finished.')
-
-main(sys.argv)
+if __name__ == "__main__":
+    main(sys.argv)
