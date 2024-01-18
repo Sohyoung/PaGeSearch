@@ -64,7 +64,7 @@ In this command:
 -t sets the number of threads to use (here, it's 4).
 
 #### Understanding the Output
-After running PaGeSearch, the results will be saved in the specified output directory. You'll find two files:
+After running PaGeSearch, the results will be saved in the specified output directory. You'll find three files:
 ##### test.bed
 This file contains information on the locations of the found genes in BED format.
 Each row contains information of the chromosome number, start codon, stop codon, and gene name. An example is as follows.
@@ -98,7 +98,14 @@ The probability represents the prediction probability calculated by PaGeSearchâ€
 1	PaGeSearch	CDS	3938025	3938303	.	+	.	gene_id=FBA8_1
 1	PaGeSearch	stop_codon	3938301	3938303	.	+	.	gene_id=FBA8_1
 ```
-
+##### test_notfound.txt
+A list of the genes for which PaGeSearch was unable to find orthologs.
+```
+FBA4
+PGI1
+AT5G42740
+PGK
+```
 
 ### Download gene sequences 
 You can download the seqeucnes of genes in a pathway or a list, that can directly be used as the query of PaGeSearch.
